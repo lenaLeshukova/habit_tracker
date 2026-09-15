@@ -79,7 +79,7 @@ python manage.py createsuperuser
 python manage.py runserver
 
 # Терминал 2: Запуск Celery Worker (выполнение задач)
-celery -A config worker --loglevel=info
+celery -A config worker --loglevel=info -P solo
 
 # Терминал 3: Запуск Celery Beat (планировщик ежеминутных напоминаний)
 celery -A config beat --loglevel=info
