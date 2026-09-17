@@ -1,10 +1,5 @@
-Django>=5.0,<5.1
-djangorestframework
-djangorestframework-simplejwt
-django-cors-headers
-django-environ
-celery
-redis
-drf-yasg
-psycopg2-binary
-coverage
+certifi==2026.7.22 ; python_version >= "3.12"
+charset-normalizer==3.5.1 ; python_version >= "3.12"
+idna==3.19 ; python_version >= "3.12"
+requests==2.34.2 ; python_version >= "3.12"
+urllib3==2.8.0 ; python_version >= "3.12"

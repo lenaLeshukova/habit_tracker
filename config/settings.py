@@ -2,7 +2,7 @@ import os
 from pathlib import Path
 from datetime import timedelta
 import environ
-
+from celery.schedules import crontab
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -102,7 +102,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = 'en-us'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'Europe/Moscow'
 
 USE_I18N = True
 
@@ -148,6 +148,17 @@ CELERY_RESULT_BACKEND = env('CELERY_RESULT_BACKEND', default='redis://localhost:
 CELERY_ACCEPT_CONTENT = ['json']
 CELERY_TASK_SERIALIZER = 'json'
 CELERY_RESULT_SERIALIZER = 'json'
-CELERY_TIMEZONE = 'Europe/Moscow'  # Настройте под свой пояс
+CELERY_TIMEZONE = 'Europe/Moscow'
 
 STATIC_URL = 'static/'
+
+# Настройка расписания для Celery Beat
+CELERY_BEAT_SCHEDULE = {
+    'send-reminders-every-minute': {
+        'task': 'habits.tasks.send_habit_reminders',
+        'schedule': crontab(minute='*'),  # Запуск каждую минуту
+    },
+}
+
+# токен бота, подтягиваем из environ
+TELEGRAM_BOT_TOKEN = env('TELEGRAM_BOT_TOKEN', default='')
