@@ -2,8 +2,10 @@ FROM python:3.12-slim
 
 ENV PYTHONUNBUFFERED=1 \
     PYTHONDONTWRITEBYTECODE=1 \
-    POETRY_HOME="/opt/poetry" \
-    POETRY_VIRTUALENVS_CREATE=false
+    POETRY_HOME="/opt/poetry"
+
+# Явно прописываем пути к бинарникам Poetry и установленным пакетам
+ENV PATH="/root/.local/bin:$POETRY_HOME/bin:$PATH"
 
 WORKDIR /app
 
@@ -18,7 +20,7 @@ RUN pip install --no-cache-dir poetry
 # Копируем конфигурацию зависимостей проекта
 COPY pyproject.toml poetry.lock* ./
 
-# Отключаем создание venv и ставим пакеты прямо в систему контейнера
+# Отключаем создание venv и ставим пакеты напрямую
 RUN poetry config virtualenvs.create false \
     && poetry install --no-root --no-interaction --no-ansi
 
