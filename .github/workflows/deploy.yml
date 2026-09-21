@@ -22,9 +22,9 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install poetry flake8
-          # Отключаем venv и ставим все зависимости (включая Django и Celery) напрямую в раннер
+          # Отключаем виртуальные окружения и добавляем флаг --no-root для Django-приложения
           poetry config virtualenvs.create false
-          poetry install --no-interaction --no-ansi
+          poetry install --no-root --no-interaction --no-ansi
 
       - name: Lint with flake8
         run: |
