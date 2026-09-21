@@ -18,25 +18,29 @@ jobs:
         with:
           python-version: '3.12'
 
-      - name: Install dependencies
+      - name: Install Lint Tools
         run: |
           python -m pip install --upgrade pip
-          # Принудительно устанавливаем линтер flake8 отдельно
           pip install flake8
-          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
 
       - name: Lint with flake8
         run: |
           flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
           flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
 
-      - name: Run Django Tests
+      - name: Verify and Run Tests inside Docker
         run: |
-          python manage.py test
-
-      - name: Verify Docker Build
-        run: |
-          docker build -t habit_tracker_test .
+          # Создаем пустой .env, чтобы docker-compose не ругался на отсутствие переменных
+          cp .env.example .env
+          
+          # Запускаем сборку и поднимаем проект локально в окружении GitHub Actions
+          docker compose up --build -d
+          
+          # Заставляем контейнер web прогнать тесты Django внутри своей изолированной среды
+          docker compose exec -T web python manage.py test
+          
+          # На всякий случай тушим контейнеры после успешных тестов
+          docker compose down
 
   deploy:
     runs-on: ubuntu-latest
