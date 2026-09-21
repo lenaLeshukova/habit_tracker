@@ -30,7 +30,14 @@ jobs:
 
       - name: Verify and Run Tests inside Docker
         run: |
-          # Генерируем временные дефолтные переменные для тестов прямо на лету
+          # 1. Устанавливаем стабильную версию Poetry 1.x в окружение GitHub Actions
+          python -m pip install --upgrade pip
+          pip install "poetry<2.0"
+          
+          # 2. Экспортируем абсолютно все зависимости (включая Django и Celery) в requirements.txt
+          poetry export -f requirements.txt --output requirements.txt --without-hashes --all-groups
+          
+          # 3. Генерируем временные дефолтные переменные для тестов прямо на лету
           echo "SECRET_KEY='test_secret_key'" > .env
           echo "DEBUG=True" >> .env
           echo "ALLOWED_HOSTS=localhost,127.0.0.1,web" >> .env
@@ -43,16 +50,16 @@ jobs:
           echo "CELERY_RESULT_BACKEND=redis://redis:6379/1" >> .env
           echo "TELEGRAM_BOT_TOKEN=8782612760:AAGL9mnhNa5FJep24ZXWRVMO9FadiS7H-7c" >> .env
           
-          # Запускаем сборку и поднимаем проект в окружении GitHub Actions
+          # 4. Запускаем сборку контейнеров
           docker compose up --build -d
           
-          # Даем контейнерам и базам данных 15 секунд на полную готовность
+          # Даем базам данных 15 секунд на полную готовность
           sleep 15
           
-          # Выводим статус контейнеров для отладки
+          # Выводим статус для отладки
           docker compose ps
           
-          # Запускаем тесты. Если они упадут, скрипт покажет логи контейнера web
+          # 5. Запускаем тесты Django внутри контейнера web. Если упадут — покажем логи
           docker compose exec -T web python manage.py test || { docker compose logs web; exit 1; }
           
           # Тушим контейнеры после успешных тестов
