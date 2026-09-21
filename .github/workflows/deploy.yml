@@ -30,12 +30,12 @@ jobs:
 
       - name: Verify and Run Tests inside Docker
         run: |
-          # 1. Устанавливаем стабильную версию Poetry 1.x в окружение GitHub Actions
+          # 1. Устанавливаем самую свежую версию Poetry 2.x и плагин экспорта
           python -m pip install --upgrade pip
-          pip install "poetry<2.0"
+          pip install poetry poetry-plugin-export
           
-          # 2. Экспортируем абсолютно все зависимости (включая Django и Celery) в requirements.txt
-          poetry export -f requirements.txt --output requirements.txt --without-hashes --dev
+          # 2. Экспортируем все зависимости (включая Django, Celery) в requirements.txt по стандарту Poetry 2.x
+          poetry export -f requirements.txt --output requirements.txt --without-hashes --with dev
           
           # 3. Генерируем временные дефолтные переменные для тестов прямо на лету
           echo "SECRET_KEY='test_secret_key'" > .env
