@@ -67,4 +67,3 @@ class PeriodicityValidator:
                 raise ValidationError(
                     "Нельзя выполнять привычку реже, чем 1 раз в 7 дней (значение должно быть от 1 до 7)."
                 )
-            
