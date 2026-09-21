@@ -6,22 +6,22 @@ ENV PYTHONUNBUFFERED=1 \
 
 WORKDIR /app
 
-# Устанавливаем только самые необходимые системные библиотеки базы данных
+# Устанавливаем системные зависимости для сборки пакетов базы данных
 RUN apt-get update && apt-get install -y --no-install-recommends \
     build-essential \
     libpq-dev \
     && rm -rf /var/lib/apt/lists/*
 
-# Шаг-трюк: ставим утилиту poetry через стандартный pip, выгружаем зависимости
-# в requirements.txt и сразу же ставим их напрямую в систему контейнера.
-# Это убирает любую магию скрытых путей виртуальных окружений!
+# Копируем конфигурационные файлы проекта
 COPY pyproject.toml poetry.lock* ./
-RUN pip install --no-cache-dir poetry \
-    && poetry export -f requirements.txt --output requirements.txt --without-hashes \
-    && pip install --no-cache-dir -r requirements.txt \
-    && pip uninstall -y poetry
 
-# Копируем весь остальной код вашего трекера привычек
+# Используем стандартный движок сборки, чтобы pip установил зависимости
+# напрямую из pyproject.toml без генерации промежуточных requirements.txt файлов
+RUN pip install --no-cache-dir --upgrade pip \
+    && pip install --no-cache-dir poetry-core \
+    && pip install --no-cache-dir .
+
+# Копируем весь остальной код вашего трекера полезных привычек
 COPY . .
 
 EXPOSE 8000
