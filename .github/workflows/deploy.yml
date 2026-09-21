@@ -35,7 +35,7 @@ jobs:
           pip install "poetry<2.0"
           
           # 2. Экспортируем абсолютно все зависимости (включая Django и Celery) в requirements.txt
-          poetry export -f requirements.txt --output requirements.txt --without-hashes --all-groups
+          oetry export -f requirements.txt --output requirements.txt --without-hashes --dev
           
           # 3. Генерируем временные дефолтные переменные для тестов прямо на лету
           echo "SECRET_KEY='test_secret_key'" > .env
