@@ -33,17 +33,13 @@ jobs:
 
       - name: Run Django Tests natively
         run: |
-          # Создаем временный файл .env для прохождения тестов
-          echo "SECRET_KEY='test_secret_key'" > .env
-          echo "DEBUG=True" >> .env
-          echo "ALLOWED_HOSTS=localhost,127.0.0.1" >> .env
-          echo "DB_NAME=test_db" > .env
-          echo "DATABASE_URL=sqlite:///:memory:" >> .env
-          echo "CELERY_BROKER_URL=redis://localhost:6379/0" >> .env
-          echo "CELERY_RESULT_BACKEND=redis://localhost:6379/1" >> .env
-          echo "TELEGRAM_BOT_TOKEN=8782612760:AAGL9mnhNa5FJep24ZXWRVMO9FadiS7H-7c" >> .env
+          # 1. Просто копируем ваш готовый шаблон окружения в файл .env для тестов
+          cp .env.template .env
           
-          # ИСПРАВЛЕНО: Запускаем тесты через окружение Poetry, чтобы Python гарантированно увидел Django
+          # 2. Переключаем базу тестов на sqlite прямо в консоли, чтобы не разворачивать Postgres в раннере
+          export DATABASE_URL="sqlite:///:memory:"
+          
+          # 3. Запускаем тесты строго через изолированное окружение Poetry
           poetry run python manage.py test
 
   deploy:
