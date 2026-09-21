@@ -12,9 +12,13 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     libpq-dev \
     && rm -rf /var/lib/apt/lists/*
 
-# Копируем сгенерированный пайплайном requirements.txt и ставим зависимости через стандартный pip
+# Копируем сгенерированный пайплайном requirements.txt
 COPY requirements.txt .
+
+# Устанавливаем зависимости из файла + принудительно доставляем celery и redis
+# прямо в глобальную область видимости контейнера
 RUN pip install --no-cache-dir --upgrade pip \
+    && pip install --no-cache-dir celery redis \
     && pip install --no-cache-dir -r requirements.txt
 
 # Копируем весь остальной код проекта
