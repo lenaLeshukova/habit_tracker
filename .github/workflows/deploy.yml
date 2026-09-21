@@ -22,8 +22,7 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install poetry flake8
-          # Отключаем виртуальные окружения и добавляем флаг --no-root для Django-приложения
-          poetry config virtualenvs.create false
+          # Позволяем Poetry создать стандартное изолированное виртуальное окружение
           poetry install --no-root --no-interaction --no-ansi
 
       - name: Lint with flake8
@@ -34,7 +33,7 @@ jobs:
       - name: Run Django Tests natively
         run: |
           cp .env.template .env
-          export DATABASE_URL="sqlite:///:memory:"
+          # Запускаем тесты внутри созданного виртуального окружения Poetry
           poetry run python manage.py test
 
   deploy:
