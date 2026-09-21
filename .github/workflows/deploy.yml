@@ -43,8 +43,10 @@ jobs:
           echo "CELERY_RESULT_BACKEND=redis://redis:6379/1" >> .env
           echo "TELEGRAM_BOT_TOKEN=8782612760:AAGL9mnhNa5FJep24ZXWRVMO9FadiS7H-7c" >> .env
           
-          # 2. ИСПРАВЛЕН СИНТАКСИС: Принудительно пересобираем образы БЕЗ кэша, а затем запускаем
-          docker compose build --no-cache
+          # 2. ЖЕСТКИЙ СБРОС КЭША: Явно пересобираем только наши кастомные сервисы с нуля
+          docker compose build --no-cache web celery_worker celery_beat
+          
+          # 3. Поднимаем всю инфраструктуру
           docker compose up -d
           
           # Даем базам данных 15 секунд на полную готовность
@@ -53,7 +55,7 @@ jobs:
           # Выводим статус для отладки
           docker compose ps
           
-          # 3. Запускаем тесты Django внутри контейнера web. Если упадут — покажем логи
+          # 4. Запускаем тесты Django внутри контейнера web. Если упадут — покажем логи
           docker compose exec -T web python manage.py test || { docker compose logs web; exit 1; }
           
           # Тушим контейнеры после успешных тестов
