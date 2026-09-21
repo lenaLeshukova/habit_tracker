@@ -33,8 +33,8 @@ jobs:
       - name: Run Django Tests natively
         run: |
           cp .env.template .env
-          # Запускаем тесты внутри созданного виртуального окружения Poetry
-          poetry run python manage.py test
+          # Запускаем тесты через Poetry, жестко указав использовать базу sqlite в памяти
+          DATABASE_URL="sqlite:///:memory:" poetry run python manage.py test
 
   deploy:
     runs-on: ubuntu-latest
