@@ -38,14 +38,13 @@ jobs:
           echo "DEBUG=True" >> .env
           echo "ALLOWED_HOSTS=localhost,127.0.0.1" >> .env
           echo "DB_NAME=test_db" > .env
-          # Переключаем тесты на sqlite, чтобы пайплайн не падал из-за отсутствия базы Postgres в раннере
           echo "DATABASE_URL=sqlite:///:memory:" >> .env
           echo "CELERY_BROKER_URL=redis://localhost:6379/0" >> .env
           echo "CELERY_RESULT_BACKEND=redis://localhost:6379/1" >> .env
           echo "TELEGRAM_BOT_TOKEN=8782612760:AAGL9mnhNa5FJep24ZXWRVMO9FadiS7H-7c" >> .env
           
-          # Запускаем тесты Django напрямую через Python
-          python manage.py test
+          # ИСПРАВЛЕНО: Запускаем тесты через окружение Poetry, чтобы Python гарантированно увидел Django
+          poetry run python manage.py test
 
   deploy:
     runs-on: ubuntu-latest
