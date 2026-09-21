@@ -43,8 +43,8 @@ jobs:
           echo "CELERY_RESULT_BACKEND=redis://redis:6379/1" >> .env
           echo "TELEGRAM_BOT_TOKEN=8782612760:AAGL9mnhNa5FJep24ZXWRVMO9FadiS7H-7c" >> .env
           
-          # 2. Запускаем сборку и поднимаем контейнеры в окружении GitHub Actions
-          docker compose up --build -d
+          # 2. ДОБАВЛЕН ФЛАГ --no-cache: Принудительно очищаем кэш и собираем образы строго с нуля!
+          docker compose up --build --no-cache -d
           
           # Даем базам данных 15 секунд на полную готовность
           sleep 15
