@@ -1,37 +1,27 @@
 FROM python:3.12-slim
 
-# Системные настройки
+# Системные настройки для вывода логов без задержек
 ENV PYTHONUNBUFFERED=1 \
-    PYTHONDONTWRITEBYTECODE=1 \
-    POETRY_HOME="/opt/poetry" \
-    POETRY_VIRTUALENVS_IN_PROJECT=false \
-    POETRY_VIRTUALENVS_CREATE=true
-
-# Настраиваем жесткий путь к виртуальному окружению, которое создаст Poetry
-ENV VIRTUAL_ENV=/opt/venv
-ENV PATH="$VIRTUAL_ENV/bin:$POETRY_HOME/bin:$PATH"
+    PYTHONDONTWRITEBYTECODE=1
 
 WORKDIR /app
 
-# Устанавливаем системные зависимости для компиляции пакетов
+# Устанавливаем только самые необходимые системные библиотеки базы данных
 RUN apt-get update && apt-get install -y --no-install-recommends \
     build-essential \
     libpq-dev \
-    curl \
     && rm -rf /var/lib/apt/lists/*
 
-# Устанавливаем Poetry
-RUN curl -sSL https://python-poetry.org | python3 -
-
-# Копируем конфигурационные файлы зависимостей
+# Шаг-трюк: ставим утилиту poetry через стандартный pip, выгружаем зависимости
+# в requirements.txt и сразу же ставим их напрямую в систему контейнера.
+# Это убирает любую магию скрытых путей виртуальных окружений!
 COPY pyproject.toml poetry.lock* ./
+RUN pip install --no-cache-dir poetry \
+    && poetry export -f requirements.txt --output requirements.txt --without-hashes \
+    && pip install --no-cache-dir -r requirements.txt \
+    && pip uninstall -y poetry
 
-# Говорим Poetry создать виртуальное окружение именно по нашему пути /opt/venv
-RUN poetry config virtualenvs.path /opt/virtualenvs \
-    && python -m venv $VIRTUAL_ENV \
-    && poetry install --no-root --no-interaction --no-ansi
-
-# Копируем весь остальной код проекта
+# Копируем весь остальной код вашего трекера привычек
 COPY . .
 
 EXPOSE 8000
