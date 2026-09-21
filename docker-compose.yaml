@@ -46,7 +46,7 @@ services:
   celery_worker:
     build: .
     restart: always
-    command: python -m celery -A config worker --loglevel=info
+    command: celery -A config worker --loglevel=info
     env_file:
       - .env
     depends_on:
@@ -58,7 +58,7 @@ services:
   celery_beat:
     build: .
     restart: always
-    command: python -m celery -A config beat --loglevel=info
+    command: celery -A config beat --loglevel=info
     env_file:
       - .env
     depends_on:

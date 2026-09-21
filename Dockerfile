@@ -1,30 +1,37 @@
 FROM python:3.12-slim
 
+# Системные настройки
 ENV PYTHONUNBUFFERED=1 \
     PYTHONDONTWRITEBYTECODE=1 \
-    POETRY_HOME="/opt/poetry"
+    POETRY_HOME="/opt/poetry" \
+    POETRY_VIRTUALENVS_IN_PROJECT=false \
+    POETRY_VIRTUALENVS_CREATE=true
 
-# Явно прописываем пути к бинарникам Poetry и установленным пакетам
-ENV PATH="/root/.local/bin:$POETRY_HOME/bin:$PATH"
+# Настраиваем жесткий путь к виртуальному окружению, которое создаст Poetry
+ENV VIRTUAL_ENV=/opt/venv
+ENV PATH="$VIRTUAL_ENV/bin:$POETRY_HOME/bin:$PATH"
 
 WORKDIR /app
 
+# Устанавливаем системные зависимости для компиляции пакетов
 RUN apt-get update && apt-get install -y --no-install-recommends \
     build-essential \
     libpq-dev \
+    curl \
     && rm -rf /var/lib/apt/lists/*
 
-# Устанавливаем poetry напрямую через pip
-RUN pip install --no-cache-dir poetry
+# Устанавливаем Poetry
+RUN curl -sSL https://python-poetry.org | python3 -
 
-# Копируем конфигурацию зависимостей проекта
+# Копируем конфигурационные файлы зависимостей
 COPY pyproject.toml poetry.lock* ./
 
-# Отключаем создание venv и ставим пакеты напрямую
-RUN poetry config virtualenvs.create false \
+# Говорим Poetry создать виртуальное окружение именно по нашему пути /opt/venv
+RUN poetry config virtualenvs.path /opt/virtualenvs \
+    && python -m venv $VIRTUAL_ENV \
     && poetry install --no-root --no-interaction --no-ansi
 
-# Копируем остальной код
+# Копируем весь остальной код проекта
 COPY . .
 
 EXPOSE 8000
