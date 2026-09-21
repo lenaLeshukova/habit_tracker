@@ -30,16 +30,28 @@ jobs:
 
       - name: Verify and Run Tests inside Docker
         run: |
-          # Создаем пустой .env, чтобы docker-compose не ругался на отсутствие переменных
-          cp .env.example .env
+          # Генерируем временные дефолтные переменные для тестов прямо на лету
+          echo "SECRET_KEY='test_secret_key'" > .env
+          echo "DEBUG=True" >> .env
+          echo "ALLOWED_HOSTS=localhost,127.0.0.1,web" >> .env
+          echo "DB_NAME=habit_db" >> .env
+          echo "DB_USER=postgres" >> .env
+          echo "DB_PASSWORD=test_pass" >> .env
+          echo "DB_HOST=db" >> .env
+          echo "DB_PORT=5432" >> .env
+          echo "CELERY_BROKER_URL=redis://redis:6379/0" >> .env
+          echo "CELERY_RESULT_BACKEND=redis://redis:6379/1" >> .env
           
-          # Запускаем сборку и поднимаем проект локально в окружении GitHub Actions
+          # Запускаем сборку и поднимаем проект в окружении GitHub Actions
           docker compose up --build -d
+          
+          # Даем базам данных 10 секунд на полную готовность перед запуском тестов
+          sleep 10
           
           # Заставляем контейнер web прогнать тесты Django внутри своей изолированной среды
           docker compose exec -T web python manage.py test
           
-          # На всякий случай тушим контейнеры после успешных тестов
+          # Тушим контейнеры после успешных тестов
           docker compose down
 
   deploy:
