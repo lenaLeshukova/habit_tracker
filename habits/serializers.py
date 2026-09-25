@@ -26,4 +26,3 @@ class HabitSerializer(serializers.ModelSerializer):
             PleasantHabitRestrictionsValidator(),
             PeriodicityValidator(),
         ]
-        

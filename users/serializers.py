@@ -19,4 +19,3 @@ class UserRegisterSerializer(serializers.ModelSerializer):
             telegram_chat_id=validated_data.get("telegram_chat_id", ""),
         )
         return user
-    

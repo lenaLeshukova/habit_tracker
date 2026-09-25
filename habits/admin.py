@@ -15,4 +15,3 @@ class HabitAdmin(admin.ModelAdmin):
     )
     list_filter = ("is_pleasant", "is_public", "user")
     search_fields = ("action", "place")
-    
